@@ -1,1 +1,2 @@
-# niyukt2.0
+# Niyukt2.0
+A platform made for student
