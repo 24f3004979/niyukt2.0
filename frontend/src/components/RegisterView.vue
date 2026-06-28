@@ -35,7 +35,7 @@ export default {
       this.successMessage = '';
       
       try {
-        await axios.post('http://127.0.0', {
+        await axios.post('api/register', {
           username: this.username,
           password: this.password,
           role: 'student' // Sets default role according to service specifications
