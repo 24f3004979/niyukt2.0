@@ -1,16 +1,11 @@
 import jwt
 import datetime
 from flask import request, jsonify
-# Import your specific service functions
 from services.auth_service import register_user, authenticate_user
+from database import SessionLocal
 
-# Replace this with your actual SQLAlchemy session getter or import
-# Example: from database import get_db
-def get_db_session():
-    # TODO: Return your active SQLAlchemy Session object here
-    # If using Flask-SQLAlchemy, you can use: from app import db; return db.session
-    pass
 
+    
 JWT_SECRET = "your_super_secret_session_key_change_this"
 
 class AuthController:
@@ -23,7 +18,7 @@ class AuthController:
         if not username or not password:
             return jsonify({'error': 'Missing username or password'}), 400
 
-        db = get_db_session()
+        db = SessionLocal()
         try:
             # Structuring payload exactly as your register_user function expects
             registration_payload = {
@@ -44,16 +39,20 @@ class AuthController:
     @staticmethod
     def login():
         data = request.get_json() or {}
+        print(f"Data Recieved into controller unit: {data}")
         username = data.get('username')
         password = data.get('password')
 
         if not username or not password:
             return jsonify({'error': 'Missing username or password'}), 400
 
-        db = get_db_session()
+        db = SessionLocal()
+        print(f"Session object initiation : {db}")
         try:
             # Validates credentials via your service logic
             user = authenticate_user(db, username, password)
+
+            print(f"Credential Matching controller component : {user}")
             
             # Generate the secure web token session
             session_token = jwt.encode({
