@@ -1,0 +1,75 @@
+import jwt
+import datetime
+from flask import request, jsonify
+# Import your specific service functions
+from services.auth_service import register_user, authenticate_user
+
+# Replace this with your actual SQLAlchemy session getter or import
+# Example: from database import get_db
+def get_db_session():
+    # TODO: Return your active SQLAlchemy Session object here
+    # If using Flask-SQLAlchemy, you can use: from app import db; return db.session
+    pass
+
+JWT_SECRET = "your_super_secret_session_key_change_this"
+
+class AuthController:
+    @staticmethod
+    def register():
+        data = request.get_json() or {}
+        username = data.get('username')
+        password = data.get('password')
+
+        if not username or not password:
+            return jsonify({'error': 'Missing username or password'}), 400
+
+        db = get_db_session()
+        try:
+            # Structuring payload exactly as your register_user function expects
+            registration_payload = {
+                'username': username,
+                'password': password,
+                'role': data.get('role', 'student'),
+                'profile_info': data.get('profile_info', {})
+            }
+            
+            # Passing the db Session and data payload dictionary
+            user = register_user(db, registration_payload)
+            return jsonify({'message': f"User '{user.username}' registered successfully"}), 201
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
+        except Exception as e:
+            return jsonify({'error': "Internal Server Error during registration"}), 500
+
+    @staticmethod
+    def login():
+        data = request.get_json() or {}
+        username = data.get('username')
+        password = data.get('password')
+
+        if not username or not password:
+            return jsonify({'error': 'Missing username or password'}), 400
+
+        db = get_db_session()
+        try:
+            # Validates credentials via your service logic
+            user = authenticate_user(db, username, password)
+            
+            # Generate the secure web token session
+            session_token = jwt.encode({
+                'user_id': user.id,
+                'username': user.username,
+                'role': user.role,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+            }, JWT_SECRET, algorithm='HS256')
+            
+            return jsonify({
+                'token': session_token, 
+                'message': 'Login successful',
+                'user': {'username': user.username, 'role': user.role}
+            }), 200
+            
+        except (ValueError, PermissionError) as e:
+            return jsonify({'error': str(e)}), 401
+        except Exception as e:
+            return jsonify({'error': f"Internal Server Error during authentication : {e}"}), 500

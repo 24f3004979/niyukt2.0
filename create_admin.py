@@ -1,7 +1,7 @@
 import sys
 from database import SessionLocal
 from models.user import User
-from services.auth import hash_password
+from services.auth_service import hash_password
 
 def seed_admin():
     print("Initiating Administrative seeding checks...")
