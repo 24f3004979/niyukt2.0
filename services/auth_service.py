@@ -17,15 +17,21 @@ def register_user(db: Session, data: dict) -> User:
     Validates availability and registers a new User account.
     Expected dict structure: {'username', 'password', 'role', 'profile_info'}
     """
+    print(f"data Recieved for registration : {data}")
     # 1. Prevent duplicate account registrations
     existing_user = db.query(User).filter(User.username == data['username']).first()
     if existing_user:
         raise ValueError(f"Registration Failed: Username '{data['username']}' is taken.")
     
     # 2. Prevent arbitrary admin accounts through user registration loops
-    target_role = data.get('role', 'student')
+    target_role = data.get('role')
     if target_role == 'admin':
         raise ValueError("Security Denied: Cannot register administrative rights via public portals.")
+    
+    final_status = 'freezed'
+    # If target role is student then its activated by default or company would need approval
+    if target_role == 'student':
+        final_status = 'active'
 
     # 3. Securely hash the password string
     secured_password = hash_password(data['password'])
@@ -35,7 +41,7 @@ def register_user(db: Session, data: dict) -> User:
         username=data['username'],
         password=secured_password,
         role=target_role,
-        account_status="active",
+        account_status=final_status,
         profile_info=data.get('profile_info', {})
     )
 
@@ -53,7 +59,7 @@ def authenticate_user(db: Session, username: str, plain_password: str) -> User:
     
     # 1. Check if the user exists
     if not user:
-        raise ValueError("Login Failed: Invalid username or password.")
+        raise ValueError("Login Failed: Invalid username | Does not Exist")
     
     # 2. Check if the account has been frozen
     if user.account_status == "freezed":
@@ -61,7 +67,7 @@ def authenticate_user(db: Session, username: str, plain_password: str) -> User:
 
     # 3. Check if the password matches the hash
     if not verify_password(plain_password, user.password):
-        raise ValueError("Login Failed: Invalid username or password.")
+        raise ValueError("Login Failed: Invalid Password")
 
     return user
 
