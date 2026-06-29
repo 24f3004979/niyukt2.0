@@ -48,7 +48,7 @@ export default {
   padding: 10px 20px;
   cursor: pointer;
   border: none;
-  background: #eee;
+  background: hsl(100,100%,90%);
   flex-grow: 1;
 }
 .toggle-buttons button.active {

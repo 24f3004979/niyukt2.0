@@ -8,18 +8,7 @@
         <label>Password</label>
         <input type="password" v-model="password" required />
       </div>
-       <div>
-        <label>Confirm Password</label>
-        <input type="password" v-model="confirm-password" required />
-      </div>
 
-      <div>
-        <label>
-          <input type="radio" :value="company" v-model="selected_role" />
-          company
-        </label>
-
-      </div>
       <button type="submit">Register Now</button>
     </form>
     <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
@@ -29,18 +18,13 @@
 
 <script>
 import axios from 'axios';
-import ref from 'vue';
-
-const selected_role = ref('student');
-const password = ref("password");
-const confirm_password = ref("confirm-password");
 
 export default {
   data() {
     return {
       username: '',
       password: '',
-      role: selected_role,
+      role: 'student',
       errorMessage: '',
       successMessage: ''
     };
@@ -51,9 +35,6 @@ export default {
       this.successMessage = '';
       
       try {
-        if (confirm_password != password){
-          throw Error('Check your password confirmation');
-        }
         await axios.post('api/register', {
           username: this.username,
           password: this.password,

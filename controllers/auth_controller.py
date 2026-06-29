@@ -24,7 +24,7 @@ class AuthController:
             registration_payload = {
                 'username': username,
                 'password': password,
-                'role': data.get('role', 'student'),
+                'role': data.get('role'),
                 'profile_info': data.get('profile_info', {})
             }
             
