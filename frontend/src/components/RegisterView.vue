@@ -9,6 +9,28 @@
         <input type="password" v-model="password" required />
       </div>
 
+      <div class="radio-group">
+        
+        <label class="radio-label">
+          <input 
+            type="radio" 
+            value="student" 
+            v-model="role"
+          >
+          <span>I am a Student</span>
+        </label>
+        
+        <label class="radio-label">
+          <input 
+            type="radio" 
+            value="company" 
+            v-model="role"
+          >
+          <span>I am a Company Representative</span>
+        </label>
+        
+      </div>
+
       <button type="submit">Register Now</button>
     </form>
     <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>

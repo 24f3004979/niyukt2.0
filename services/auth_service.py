@@ -55,6 +55,7 @@ def authenticate_user(db: Session, username: str, plain_password: str) -> User:
     Validates application user credentials.
     Returns the User model if valid; raises an exception for any failures.
     """
+    print('User Authentication request Being Made :)')
     user = db.query(User).filter(User.username == username).first()
     
     # 1. Check if the user exists

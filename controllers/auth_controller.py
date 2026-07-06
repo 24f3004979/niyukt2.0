@@ -1,12 +1,12 @@
-import jwt
 import datetime
 from flask import request, jsonify
 from services.auth_service import register_user, authenticate_user
 from database import SessionLocal
+import jwt
 
 
     
-JWT_SECRET = "your_super_secret_session_key_change_this"
+JWT_SECRET = "ironman"
 
 class AuthController:
     @staticmethod
