@@ -1,14 +1,33 @@
-<!-- src/App.vue -->
 <template>
-  <div id="app" class="auth-container">
-    <div class="toggle-buttons">
-      <button :class="{ active: currentView === 'login' }" @click="currentView = 'login'">Login</button>
-      <button :class="{ active: currentView === 'register' }" @click="currentView = 'register'">Register</button>
-    </div>
 
-    <!-- Switch components seamlessly based on active tab -->
-    <LoginView v-if="currentView === 'login'" @registration-success="currentView = 'login'" />
-    <RegisterView v-else />
+  <div class="auth-wrapper">
+    <div class="card auth-card shadow-sm">
+      <div class="card-body p-4">
+        <ul class="nav nav-pills nav-fill mb-4">
+          <li class="nav-item">
+            <button
+              class="nav-link"
+              :class="{ active: mode === 'login' }"
+              @click="mode = 'login'"
+            >
+              Login
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link"
+              :class="{ active: mode === 'register' }"
+              @click="mode = 'register'"
+            >
+              Register
+            </button>
+          </li>
+        </ul>
+
+        <LoginView v-if="mode === 'login'" />
+        <RegisterView v-else />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -24,59 +43,41 @@ export default {
   },
   data() {
     return {
-      currentView: 'login'
+      mode: 'login'
     };
   }
 };
 </script>
 
-<style>
-.auth-container {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-}
-.toggle-buttons {
+<style scoped>
+.auth-wrapper {
+  min-height: 100vh;
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 20px;
+  align-items: center;
+  justify-content: center;
+  background: #0d1117;
+  padding: 1rem;
 }
-.toggle-buttons button {
-  padding: 10px 20px;
-  cursor: pointer;
-  border: none;
-  background: hsl(100,100%,90%);
-  flex-grow: 1;
-}
-.toggle-buttons button.active {
-  background: #42b983;
-  color: white;
-}
-form div {
-  margin-bottom: 15px;
-}
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-input {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-}
-button[type="submit"] {
-  width: 100%;
-  padding: 10px;
-  background-color: #42b983;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-.error-msg { color: red; margin-top: 10px; }
-.success-msg { color: green; margin-top: 10px; }
-</style>
 
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  border: none;
+  border-radius: 18px;
+}
+
+.nav-pills{
+  background-color : black;
+  border-radius : 10px;
+}
+
+.nav-pills .nav-link {
+  border-radius: 10px;
+  font-weight: 600;
+  color: white;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #0d6efd;
+}
+</style>
