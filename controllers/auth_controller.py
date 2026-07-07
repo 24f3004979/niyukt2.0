@@ -62,6 +62,7 @@ class AuthController:
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
             }, JWT_SECRET, algorithm='HS256')
             
+            # Session Token being sent for the future communication
             return jsonify({
                 'token': session_token, 
                 'message': 'Login successful',

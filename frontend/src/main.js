@@ -1,12 +1,14 @@
-import Vue from 'vue'
-import App from './App.vue'
-import axios from 'axios'
+// src/main.js
+import Vue from 'vue';
+import App from './App.vue';
+import router from './router';
+import api from './services/api'; // Import our configured file
 
-axios.defaults.baseURL = 'http://127.0.0.1:5000'
-Vue.config.productionTip = false
+// This makes it available globally as this.$api
+Vue.prototype.$api = api; 
 
 new Vue({
-  render: h => h(App),
-}).$mount('#app')
-
+  router,
+  render: h => h(App)
+}).$mount('#app');
 
