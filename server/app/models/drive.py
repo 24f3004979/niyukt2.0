@@ -17,7 +17,7 @@ class Drive(db.Model):
 
     # pending -> approved / rejected (admin decides). approved drives can later be closed.
     status = db.Column(db.String(20), nullable=False, default="pending")
-
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     approved_at = db.Column(db.DateTime, nullable=True)
 
 
@@ -30,5 +30,6 @@ class Drive(db.Model):
             "role_offered": self.role_offered,
             "package_ctc": self.package_ctc,
             "status": self.status,
+            "created_at":self.created_at,
             "approved_at": self.approved_at.isoformat() if self.approved_at else None,
         }

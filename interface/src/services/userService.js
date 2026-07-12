@@ -2,6 +2,6 @@ import api from './api'
 
 export default {
   getCurrentUser() {
-    return api.get('/me')
+    return api.get('/user/me')
   }
 }

@@ -8,13 +8,19 @@ def register_user(data):
     ''' Try Except block required to handle the Existing user account information fallback '''
     
     print(f"Information Recieved for the registration : {data}")
+    
+    st="active"
+    if data.get("role") == 'company':
+        st='blocked'
+
     user = User(
         email=data["email"],
         username=data["username"],
         role=data.get(
             "role",
             "student"
-        )
+        ),
+        account_status=st
     )
 
 

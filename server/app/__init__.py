@@ -20,7 +20,7 @@ def create_app():
         "SQLALCHEMY_DATABASE_URI"
     ] = "sqlite:///niyukt.db"
 
-    app.config["JWT_SECRET_KEY"] = ("lqppgc9qr_clash_of_clans_id")
+    app.config["JWT_SECRET_KEY"] = ("lqppgc9qr_clash_of_clans_id_freefire_india_instant_damage_skill")
 
     # Vue frontend communication for api
     CORS(
@@ -49,7 +49,7 @@ def create_app():
     )
     app.register_blueprint(
         user_bp,
-        url_prefix="/api"
+        url_prefix="/api/user"
     )
     app.register_blueprint(
         auth_bp,

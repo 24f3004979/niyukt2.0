@@ -61,7 +61,7 @@ export default {
         const response = await userService.getCurrentUser()
         this.user = response.data
       } catch (err) {
-        this.error = 'Could not load your account details. Please try logging in again.'
+        this.error = "ACCOUNT BLOCKED"
       } finally {
         this.loading = false
       }

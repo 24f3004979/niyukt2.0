@@ -184,7 +184,7 @@ try{
 
 
 await api.post(
-"/api/auth/register",
+"/auth/register",
 {
 username:this.username,
 email:this.email,
