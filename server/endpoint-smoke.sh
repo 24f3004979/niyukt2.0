@@ -21,7 +21,7 @@ function create_user(){
 	local role=$3
 curl -X POST http://127.0.0.1:5000/api/auth/register \
     -H "Content-Type: application/json" \
-    -d "{\"username\": \"${username}\", \"email\": \"${email}\", \"password\": \"1212\", \"role\": \"${role}\"}"
+    -d "{\"username\": \"${username}\", \"email\": \"${email}\", \"password\": \"lqppgc9qr\", \"role\": \"${role}\"}"
 }
 
 create_user "Admin" "admin@example.com" "admin"

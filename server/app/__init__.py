@@ -3,6 +3,13 @@ from flask_cors import CORS
 
 from app.extensions import db, jwt
 
+from app.models.user import User
+from app.models.drive import Drive
+from app.models.application import Application
+from app.models.placement_history import PlacementHistory
+
+__all__ = ["User", "Drive", "Application", "PlacementHistory"]
+
 
 def create_app():
 
@@ -13,7 +20,7 @@ def create_app():
         "SQLALCHEMY_DATABASE_URI"
     ] = "sqlite:///niyukt.db"
 
-    app.config["JWT_SECRET_KEY"] = ("IronMAN")
+    app.config["JWT_SECRET_KEY"] = ("lqppgc9qr_clash_of_clans_id")
 
     # Vue frontend communication for api
     CORS(
@@ -34,7 +41,12 @@ def create_app():
 
     from app.routes.user_routes import user_bp
     from app.routes.auth_routes import auth_bp
+    from app.routes.admin_routes import admin_bp
 
+    app.register_blueprint(
+        admin_bp,
+        url_prefix="/api/admin"
+    )
     app.register_blueprint(
         user_bp,
         url_prefix="/api"
@@ -43,7 +55,6 @@ def create_app():
         auth_bp,
         url_prefix="/api/auth"
     )
-
 
     with app.app_context():
         db.create_all()

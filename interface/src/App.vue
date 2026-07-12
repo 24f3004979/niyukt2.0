@@ -118,7 +118,6 @@ this.$router.push(
 #app {
 
 min-height:100vh;
-background-color : black;
 
 }
 
