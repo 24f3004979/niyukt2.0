@@ -1,0 +1,33 @@
+import Vue from "vue"
+import VueRouter from "vue-router"
+
+import LoginView from "../views/LoginView.vue"
+import RegisterView from "../views/RegisterView.vue"
+import DashboardView from "../views/DashboardView.vue"
+
+Vue.use(VueRouter)
+
+const routes=[
+  {
+    path:"/",
+    redirect:"/login"
+  },
+  {
+    path:"/login",
+    component:LoginView
+  },
+  {
+    path:"/register",
+    component:RegisterView
+  },
+  {
+    path:"/dashboard",
+    component:DashboardView
+  }
+]
+
+export default new VueRouter({
+  mode:"history",
+  routes
+})
+

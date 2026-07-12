@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-'''
-    Central Flask Extension File '''
+from flask_jwt_extended import JWTManager
 
+jwt = JWTManager()
 db = SQLAlchemy()
 
