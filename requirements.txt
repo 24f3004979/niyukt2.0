@@ -1,4 +1,0 @@
-sqlalchemy
-bcrypt<4.0
-flask
-flask-cors
