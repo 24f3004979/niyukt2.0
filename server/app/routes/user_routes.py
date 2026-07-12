@@ -25,22 +25,3 @@ def users():
         u.serialize()
         for u in users
     ])
-
-
-
-
-@user_bp.route(
-    "/users",
-    methods=["POST"]
-)
-def add_user():
-
-    data = request.json
-
-    user = create_user(data)
-
-
-    return jsonify({
-        "message":"created",
-        "user":user.serialize()
-    }),201

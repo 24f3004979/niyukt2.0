@@ -1,0 +1,909 @@
+# Placement Portal Backend + Frontend Implementation Context
+
+## 1. Project Goal
+
+We are building a **placement portal system** with:
+
+* Flask backend
+* Flask-SQLAlchemy ORM
+* Vue 2 frontend
+* Bootstrap styling
+* JWT authentication
+* Role-based access control
+
+Initial roles:
+
+```
+Admin
+Student
+Company
+```
+
+Core workflow:
+
+```
+Student
+   |
+   | register
+   |
+   v
+Active account
+   |
+   |
+   v
+Apply to drives
+
+
+Company
+   |
+   | register
+   |
+   v
+Pending account
+   |
+   |
+   v
+Admin approval
+   |
+   |
+   v
+Create drives
+
+
+Admin
+   |
+   |
+   +---- Manage users
+   +---- Approve companies
+   +---- Manage drives
+```
+
+---
+
+# 2. Backend Architecture
+
+The backend was moved from a single Flask file into a modular architecture.
+
+Current planned structure:
+
+```
+backend/
+
+├── run.py
+├── config.py
+│
+└── app/
+    |
+    ├── __init__.py
+    ├── extensions.py
+    |
+    ├── models/
+    │   |
+    │   ├── __init__.py
+    │   └── user.py
+    |
+    ├── routes/
+    │   |
+    │   ├── auth_routes.py
+    │   ├── user_routes.py
+    │   └── admin_routes.py
+    |
+    ├── services/
+    │   |
+    │   ├── auth_service.py
+    │   └── user_service.py
+    |
+    ├── errors.py
+    |
+    └── utils/
+        |
+        └── permissions.py
+```
+
+---
+
+# 3. Flask Extensions
+
+Centralized extensions:
+
+`extensions.py`
+
+Responsibilities:
+
+```python
+db = SQLAlchemy()
+
+jwt = JWTManager()
+```
+
+Future additions:
+
+```
+Flask-Migrate
+Caching
+Mail service
+```
+
+---
+
+# 4. User Database Model
+
+Current User model:
+
+```
+users
+
+id
+email
+username
+password_hash
+role
+account_status
+```
+
+Example:
+
+Student:
+
+```json
+{
+"id":1,
+"username":"ram",
+"email":"ram@gmail.com",
+"role":"student",
+"account_status":"active"
+}
+```
+
+Company:
+
+```json
+{
+"id":2,
+"username":"infosys",
+"email":"hr@infosys.com",
+"role":"company",
+"account_status":"pending"
+}
+```
+
+---
+
+## Password Handling
+
+Passwords are not stored directly.
+
+Using:
+
+```python
+werkzeug.security
+```
+
+Methods:
+
+```python
+set_password()
+
+check_password()
+```
+
+Database stores:
+
+```
+password_hash
+```
+
+---
+
+# 5. Initial User APIs
+
+## Get Users
+
+```
+GET
+
+/api/users
+```
+
+Returns:
+
+```json
+[
+ {
+ "id":1,
+ "username":"ram",
+ "role":"student"
+ }
+]
+```
+
+---
+
+## Create User
+
+```
+POST
+
+/api/users
+```
+
+Example:
+
+```json
+{
+"username":"ram",
+"email":"ram@gmail.com",
+"password":"12345"
+}
+```
+
+---
+
+# 6. Authentication System
+
+Implemented:
+
+## Register
+
+```
+POST
+
+/api/auth/register
+```
+
+Input:
+
+```json
+{
+"username":"madhav",
+"email":"madhav@gmail.com",
+"password":"12345",
+"role":"student"
+}
+```
+
+---
+
+## Login
+
+```
+POST
+
+/api/auth/login
+```
+
+Input:
+
+```json
+{
+"username":"madhav",
+"password":"12345"
+}
+```
+
+Response:
+
+```json
+{
+"token":"JWT_TOKEN"
+}
+```
+
+Frontend stores:
+
+```
+localStorage
+
+token
+```
+
+---
+
+# 7. Registration Business Logic
+
+Registration now depends on role.
+
+## Student
+
+Automatically:
+
+```
+role = student
+
+account_status = active
+```
+
+Can immediately login.
+
+---
+
+## Company
+
+Automatically:
+
+```
+role = company
+
+account_status = pending
+```
+
+Needs admin approval.
+
+---
+
+Registration flow:
+
+```
+Register Form
+      |
+      |
+      v
+Choose Role
+
+      |
+      |
+      +----------------+
+      |                |
+   Student          Company
+
+      |                |
+      v                v
+
+ active          pending
+
+```
+
+---
+
+# 8. Login Validation
+
+Login checks:
+
+1. Username exists
+2. Password matches
+3. Account status
+
+Pending companies cannot login.
+
+Future better response:
+
+```json
+{
+"code":"ACCOUNT_PENDING",
+"message":
+"Company account awaiting approval"
+}
+```
+
+---
+
+# 9. JWT Protection
+
+JWT added using:
+
+```
+flask-jwt-extended
+```
+
+Protected endpoint example:
+
+```python
+@jwt_required()
+def users():
+    ...
+```
+
+Request requires:
+
+```
+Authorization:
+
+Bearer <JWT>
+```
+
+---
+
+# 10. Role Authorization
+
+Created concept:
+
+```
+role_required()
+```
+
+Example:
+
+Admin only:
+
+```python
+@jwt_required()
+@role_required("admin")
+```
+
+Expected permissions:
+
+```
+Admin
+
+/users
+/admin/companies
+/drives
+
+
+Student
+
+/profile
+/drives
+/applications
+
+
+Company
+
+/company/profile
+/create-drive
+/applicants
+```
+
+---
+
+# 11. Backend Error Handling
+
+Problem discovered:
+
+SQLAlchemy crashes on:
+
+```
+UNIQUE constraint failed
+```
+
+Example:
+
+Duplicate email:
+
+```
+IntegrityError
+```
+
+Solution:
+
+Central error handler.
+
+Handles:
+
+```
+404
+
+500
+
+IntegrityError
+```
+
+Returns JSON:
+
+Example:
+
+```json
+{
+"message":
+"Database constraint violation"
+}
+```
+
+instead of Flask crash.
+
+---
+
+# 12. API Response Improvement Plan
+
+Current:
+
+```json
+{
+"message":"created"
+}
+```
+
+Future standardized response:
+
+Success:
+
+```json
+{
+"success":true,
+"message":"User created",
+"data":{}
+}
+```
+
+Error:
+
+```json
+{
+"success":false,
+
+"error":{
+    "code":"EMAIL_EXISTS",
+    "message":
+    "Email already registered"
+}
+
+}
+```
+
+This allows Vue to handle all modules uniformly.
+
+---
+
+# 13. Frontend Architecture
+
+Vue 2 + Bootstrap.
+
+Structure:
+
+```
+frontend/src/
+
+
+├── App.vue
+│
+├── router/
+│   └── index.js
+│
+├── services/
+│   └── api.js
+│
+├── views/
+│   |
+│   ├── Login.vue
+│   ├── Register.vue
+│   ├── Dashboard.vue
+│   └── AdminDashboard.vue
+│
+└── components/
+    |
+    ├── auth/
+    │   |
+    │   ├── LoginForm.vue
+    │   └── RegisterForm.vue
+    |
+    ├── admin/
+    |
+    └── common/
+
+```
+
+---
+
+# 14. Vue Routing
+
+Routes:
+
+```
+/login
+
+/register
+
+/dashboard
+
+/admin
+```
+
+Views load components.
+
+Example:
+
+```
+Login.vue
+
+      |
+      |
+      v
+
+LoginForm.vue
+```
+
+---
+
+# 15. Axios Communication
+
+Created:
+
+```
+services/api.js
+```
+
+Base URL:
+
+```
+http://localhost:5000/api
+```
+
+Axios interceptor automatically attaches JWT:
+
+```
+Authorization:
+
+Bearer TOKEN
+```
+
+Every API call automatically becomes authenticated.
+
+---
+
+# 16. CORS Configuration
+
+Backend:
+
+Installed:
+
+```
+flask-cors
+```
+
+Allowed:
+
+```
+Vue frontend
+
+localhost:8080
+```
+
+Communication:
+
+```
+Vue
+localhost:8080
+
+      |
+      |
+      v
+
+Flask
+localhost:5000
+
+```
+
+---
+
+# 17. Authentication UI
+
+Created:
+
+```
+RegisterForm.vue
+
+LoginForm.vue
+```
+
+Features:
+
+* Bootstrap card layout
+* centered form
+* minimal shadows
+* rounded inputs
+* role selector
+* backend error display
+
+---
+
+# 18. Register UI Features
+
+Fields:
+
+```
+Username
+
+Email
+
+Password
+
+Role:
+
+( ) Student
+
+( ) Company
+
+```
+
+Role selector changes:
+
+```
+student
+company
+```
+
+sent to backend.
+
+---
+
+# 19. Login UI Features
+
+Fields:
+
+```
+Username
+
+Password
+```
+
+On success:
+
+```
+JWT received
+
+        |
+        v
+
+localStorage
+
+        |
+        v
+
+/dashboard
+```
+
+On failure:
+
+Backend error displayed:
+
+```
+Invalid credentials
+```
+
+---
+
+# 20. Admin Dashboard Plan
+
+First admin feature:
+
+## Pending Company Approval
+
+Backend:
+
+```
+GET
+
+/api/admin/companies/pending
+```
+
+Returns:
+
+```json
+[
+{
+"id":2,
+"username":"TCS",
+"email":"hr@tcs.com"
+}
+]
+```
+
+---
+
+Approve:
+
+```
+PUT
+
+/api/admin/company/<id>/approve
+```
+
+Changes:
+
+```
+pending
+
+      |
+
+      v
+
+active
+```
+
+---
+
+Frontend:
+
+Planned:
+
+```
+AdminDashboard.vue
+
+
+components/admin/
+
+PendingCompanies.vue
+
+UserTable.vue
+
+```
+
+---
+
+# 21. Current Development State
+
+Completed:
+
+✅ Flask modular architecture
+✅ SQLAlchemy User model
+✅ User creation testing
+✅ 1000 user creation smoke test (~10 sec)
+✅ JWT authentication
+✅ Register endpoint
+✅ Login endpoint
+✅ Vue 2 scaffold plan
+✅ Axios integration
+✅ CORS communication
+✅ Bootstrap auth UI
+✅ Role-based registration logic design
+
+---
+
+# 22. Immediate Next Tasks
+
+Recommended order:
+
+## Phase 1 — Finish Authentication
+
+1. Vue router guards
+
+```
+No token
+    |
+    v
+Redirect login
+```
+
+2. Role-based frontend routing
+
+```
+admin
+student
+company
+```
+
+3. Refresh token support
+
+---
+
+## Phase 2 — Admin Module
+
+Build:
+
+```
+Admin Dashboard
+
+|
++ Pending Companies
+|
++ User Management
+|
++ Statistics
+```
+
+---
+
+## Phase 3 — Core Placement Models
+
+Database:
+
+```
+User
+
+StudentProfile
+
+CompanyProfile
+
+Drive
+
+Application
+
+Resume
+
+Interview
+```
+
+---
+
+Current system has reached the point where it is no longer a simple CRUD app; the foundation is ready to grow into a proper multi-role placement management platform.
+

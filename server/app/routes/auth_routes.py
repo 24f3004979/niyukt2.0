@@ -41,8 +41,8 @@ methods=["POST"]
 def login():
 
     data=request.json
-
-
+    
+    print(f"Data Revieved for Login coontroller with {data}")
     user = authenticate(
         data["username"],
         data["password"]
@@ -51,7 +51,8 @@ def login():
 
     if not user:
         return {
-            "error":"Invalid credentials"
+            "error":"User Check failed",
+            "message":"Check User Name Or Password"
         },401
 
 

@@ -12,7 +12,7 @@
           class="navbar-brand"
           to="/"
         >
-          Placement Portal
+          Niyukt-v2.0
         </router-link>
 
 
@@ -118,8 +118,8 @@ this.$router.push(
 #app {
 
 min-height:100vh;
+background-color : black;
 
 }
-
 
 </style>

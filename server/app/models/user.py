@@ -45,10 +45,14 @@ class User(db.Model):
         }
     
     def set_password(self, password):
+        print(f"User password : {password}")
         self.password = generate_password_hash(
             password
         )
     def check_password_hash(self, password):
+        ''' Checking password hash for the final checkout'''
+
+        print(f"Password Check is being running")
         return check_password_hash(
             self.password, password
         )
