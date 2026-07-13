@@ -14,7 +14,6 @@ def create_drive(company_id, data):
         company_id=company_id,
         title=data.get("title"),
         description=data.get("description"),
-        role_offered=data.get("role_offered"),
         package_ctc=data.get("package_ctc"),
         status="pending",  # always starts pending, admin must approve
     )

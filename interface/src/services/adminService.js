@@ -11,8 +11,8 @@ export default {
   approveDrive(driveId) {
     return api.put(`/admin/drive/${driveId}/approve`)
   },
-  rejectDrive(driveId, reason = '') {
-    return api.put(`/admin/drive/${driveId}/reject`, { reason })
+  rejectDrive(driveId) {
+    return api.put(`/admin/drive/${driveId}/reject`)
   },
 
   // Companies (registration approval)

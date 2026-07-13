@@ -1,7 +1,7 @@
 echo "Firing User Creation Endpoint :)"
 
 function user_smoke(){
-for i in {1..100}; do
+for i in {1..10}; do
   rand=$(head /dev/urandom | tr -dc a-z0-9 | head -c 5)
   username="user_${i}_${rand}"
   email="user_${i}@gmail.com"

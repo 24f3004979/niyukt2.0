@@ -10,7 +10,13 @@ export default {
   getApplicationsForDrive(driveId) {
     return api.get(`/company/drive/${driveId}/applications`)
   },
+  getAllApplications() {
+    return api.get('/company/applications')
+  },
   updateApplicationStatus(applicationId, payload) {
     return api.put(`/company/application/${applicationId}/status`, payload)
+  },
+  downloadApplicantResume(applicationId) {
+    return api.get(`/company/application/${applicationId}/resume`, { responseType: 'blob' })
   }
 }

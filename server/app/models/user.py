@@ -34,6 +34,10 @@ class User(db.Model):
         db.String(50),
         default="active"
     )
+    resume_filename = db.Column(
+        db.String(50),
+        default=""
+    )
     def serialize(self):
 
         return {

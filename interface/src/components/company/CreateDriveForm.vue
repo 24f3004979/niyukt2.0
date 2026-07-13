@@ -15,15 +15,10 @@
           <label class="form-label">Description</label>
           <textarea class="form-control" rows="3" v-model="form.description"></textarea>
         </div>
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Role Offered</label>
-            <input type="text" class="form-control" v-model="form.role_offered" />
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Package (CTC, LPA)</label>
-            <input type="number" step="0.1" class="form-control" v-model.number="form.package_ctc" />
-          </div>
+        
+        <div class="mb-3">
+          <label class="form-label">Package (CTC, LPA)</label>
+          <input type="number" step="0.1" class="form-control" v-model.number="form.package_ctc" />
         </div>
         <button type="submit" class="btn btn-primary" :disabled="submitting">
           {{ submitting ? 'Submitting...' : 'Submit for Approval' }}
@@ -43,7 +38,6 @@ export default {
       form: {
         title: '',
         description: '',
-        role_offered: '',
         package_ctc: null
       },
       submitting: false,
@@ -59,7 +53,7 @@ export default {
       try {
         await companyService.createDrive(this.form)
         this.success = true
-        this.form = { title: '', description: '', role_offered: '', package_ctc: null, eligibility_criteria: '' }
+        this.form = { title: '', description: '', package_ctc: null }
         this.$emit('created')
       } catch (err) {
         this.error = err.response?.data?.error?.message || 'Failed to create drive.'

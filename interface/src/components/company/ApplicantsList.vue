@@ -16,7 +16,7 @@
           <th>Student</th>
           <th>Current Status</th>
           <th>Set Status</th>
-          <th>Package (if selected)</th>
+          <th>Resume</th>
           <th></th>
         </tr>
       </thead>
@@ -32,15 +32,14 @@
             </select>
           </td>
           <td>
-            <input
-              v-if="app.pendingStatus === 'selected'"
-              type="number"
-              step="0.1"
-              class="form-control form-control-sm"
-              v-model.number="app.pendingPackage"
-              placeholder="LPA"
-            />
-            <span v-else class="text-muted">—</span>
+            <button
+              v-if="app.student_has_resume"
+              class="btn btn-sm btn-outline-secondary"
+              @click="downloadResume(app)"
+            >
+              Download
+            </button>
+            <span v-else class="text-muted small">Not uploaded</span>
           </td>
           <td>
             <button
@@ -86,11 +85,7 @@ export default {
       this.error = null
       try {
         const response = await companyService.getApplicationsForDrive(this.driveId)
-        this.applications = response.data.map(a => ({
-          ...a,
-          pendingStatus: a.status,
-          pendingPackage: null
-        }))
+        this.applications = response.data.map(a => ({ ...a, pendingStatus: a.status }))
       } catch (err) {
         this.error = err.response?.data?.error?.message || 'Failed to load applicants.'
       } finally {
@@ -101,16 +96,26 @@ export default {
       this.updatingId = app.id
       this.error = null
       try {
-        const payload = { status: app.pendingStatus }
-        if (app.pendingStatus === 'selected' && app.pendingPackage) {
-          payload.package_ctc = app.pendingPackage
-        }
-        const response = await companyService.updateApplicationStatus(app.id, payload)
+        const response = await companyService.updateApplicationStatus(app.id, { status: app.pendingStatus })
         app.status = response.data.data.status
       } catch (err) {
         this.error = err.response?.data?.error?.message || 'Failed to update status.'
       } finally {
         this.updatingId = null
+      }
+    },
+    async downloadResume(app) {
+      try {
+        const response = await companyService.downloadApplicantResume(app.id)
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `${app.student_name}_resume`)
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+      } catch (err) {
+        this.error = 'Failed to download resume.'
       }
     },
     statusBadgeClass(status) {

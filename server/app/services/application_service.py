@@ -1,10 +1,7 @@
-from datetime import datetime
-
 from app.extensions import db
 from app.models.application import Application, APPLICATION_STATUSES
 from app.models.drive import Drive
 from app.models.user import User
-from app.models.placement_history import PlacementHistory
 
 
 def apply_to_drive(student_id, drive_id):
@@ -26,16 +23,13 @@ def apply_to_drive(student_id, drive_id):
 
     application = Application(student_id=student_id, drive_id=drive_id, status="applied")
     db.session.add(application)
-    db.session.flush()  # assigns application.id without committing yet
-
-    _log_history(application, drive)
-
     db.session.commit()
     return application
 
 
 def get_applications_for_drive(company_id, drive_id):
-    """Company-facing: only the owning company can see applicants for a drive."""
+    """Company-facing, scoped to one drive. Ownership check: company can only
+    see applicants for its own drives."""
     drive = Drive.query.get(drive_id)
     if not drive:
         raise ValueError("Drive not found")
@@ -45,11 +39,24 @@ def get_applications_for_drive(company_id, drive_id):
     return Application.query.filter_by(drive_id=drive_id).order_by(Application.applied_at.desc()).all()
 
 
+def get_applications_for_company(company_id):
+    """Every applicant across every drive this company has posted -- the
+    'list all applications' view, no need to pick a drive first."""
+    return (
+        Application.query
+        .join(Drive, Application.drive_id == Drive.id)
+        .filter(Drive.company_id == company_id)
+        .order_by(Application.applied_at.desc())
+        .all()
+    )
+
+
 def get_applications_for_student(student_id):
+    # FIX : Applied at is not the valid concern being used at application Data structure
     return Application.query.filter_by(student_id=student_id).order_by(Application.applied_at.desc()).all()
 
 
-def update_application_status(application_id, new_status, package_ctc=None, remarks=None):
+def update_application_status(application_id, new_status):
     if new_status not in APPLICATION_STATUSES:
         raise ValueError(f"Invalid status. Must be one of {APPLICATION_STATUSES}")
 
@@ -58,23 +65,5 @@ def update_application_status(application_id, new_status, package_ctc=None, rema
         raise ValueError("Application not found")
 
     application.status = new_status
-    application.updated_at = datetime.utcnow()
-
-    drive = Drive.query.get(application.drive_id)
-    _log_history(application, drive, package_ctc=package_ctc, remarks=remarks)
-
     db.session.commit()
     return application
-
-
-def _log_history(application, drive, package_ctc=None, remarks=None):
-    entry = PlacementHistory(
-        student_id=application.student_id,
-        application_id=application.id,
-        drive_id=drive.id,
-        company_id=drive.company_id,
-        status=application.status,
-        package_ctc=package_ctc,
-        remarks=remarks,
-    )
-    db.session.add(entry)

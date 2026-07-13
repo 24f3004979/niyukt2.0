@@ -22,9 +22,6 @@
               <p class="card-text small">{{ drive.description }}</p>
               <p class="mb-1" v-if="drive.role_offered"><strong>Role:</strong> {{ drive.role_offered }}</p>
               <p class="mb-1" v-if="drive.package_ctc"><strong>Package:</strong> {{ drive.package_ctc }} LPA</p>
-              <p class="mb-3" v-if="drive.eligibility_criteria">
-                <strong>Eligibility:</strong> {{ drive.eligibility_criteria }}
-              </p>
               <div class="mt-auto">
                 <button
                   class="btn btn-primary btn-sm"

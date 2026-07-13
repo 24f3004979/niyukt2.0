@@ -10,7 +10,11 @@ export default {
   getMyApplications() {
     return api.get('/student/applications')
   },
-  getMyPlacementHistory() {
-    return api.get('/student/placement-history')
+  uploadResume(file) {
+    const formData = new FormData()
+    formData.append('resume', file)
+    return api.post('/student/resume', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
   }
 }

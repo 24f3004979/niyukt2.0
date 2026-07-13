@@ -5,6 +5,8 @@ from app.models.user import User
 from app.models.drive import Drive
 
 
+# ---------------- Drives ----------------
+
 def list_pending_drives():
     return Drive.query.filter_by(status="pending").order_by(Drive.created_at.desc()).all()
 
@@ -16,7 +18,7 @@ def list_all_drives(status=None):
     return query.order_by(Drive.created_at.desc()).all()
 
 
-def approve_drive(drive_id, admin_id):
+def approve_drive(drive_id):
     drive = Drive.query.get(drive_id)
     if not drive:
         raise ValueError("Drive not found")
@@ -24,13 +26,12 @@ def approve_drive(drive_id, admin_id):
         raise ValueError(f"Drive is already {drive.status}")
 
     drive.status = "approved"
-    drive.approved_by = admin_id
     drive.approved_at = datetime.utcnow()
     db.session.commit()
     return drive
 
 
-def reject_drive(drive_id, admin_id, reason=None):
+def reject_drive(drive_id):
     drive = Drive.query.get(drive_id)
     if not drive:
         raise ValueError("Drive not found")
@@ -38,13 +39,11 @@ def reject_drive(drive_id, admin_id, reason=None):
         raise ValueError(f"Drive is already {drive.status}")
 
     drive.status = "rejected"
-    drive.approved_by = admin_id
-    drive.approved_at = datetime.utcnow()
-    drive.rejection_reason = reason
     db.session.commit()
     return drive
 
 
+# ---------------- Company approval ----------------
 
 def list_pending_companies():
     return User.query.filter_by(role="company", account_status="pending").all()
@@ -68,6 +67,7 @@ def reject_company(company_id):
     return company
 
 
+# ---------------- User listing ----------------
 
 def get_all_students():
     return User.query.filter_by(role="student").all()
@@ -77,6 +77,7 @@ def get_all_companies():
     return User.query.filter_by(role="company").all()
 
 
+# ---------------- Block / unblock ----------------
 
 def block_user(user_id):
     user = User.query.get(user_id)

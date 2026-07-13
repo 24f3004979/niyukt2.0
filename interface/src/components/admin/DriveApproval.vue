@@ -108,10 +108,9 @@ export default {
       }
     },
     async reject(id) {
-      const reason = window.prompt('Reason for rejecting this drive (optional):') || ''
       this.actionInProgress = id
       try {
-        await adminService.rejectDrive(id, reason)
+        await adminService.rejectDrive(id)
         this.drives = this.drives.filter(d => d.id !== id)
         this.$emit('updated')
       } catch (err) {

@@ -41,7 +41,6 @@ class PlacementHistory(db.Model):
             "company_name": self.company.username if self.company else None,
             "status": self.status,
             "package_ctc": self.package_ctc,
-            "remarks": self.remarks,
             "recorded_at": self.recorded_at.isoformat() if self.recorded_at else None,
         }
 

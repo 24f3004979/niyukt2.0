@@ -19,9 +19,6 @@
             <div>
               <h6 class="mb-1">{{ drive.title }}</h6>
               <span class="badge" :class="statusBadgeClass(drive.status)">{{ drive.status }}</span>
-              <span v-if="drive.status === 'rejected' && drive.rejection_reason" class="text-muted small ms-2">
-                Reason: {{ drive.rejection_reason }}
-              </span>
               <span v-if="drive.status === 'pending'" class="text-muted small ms-2">
                 Awaiting admin approval
               </span>

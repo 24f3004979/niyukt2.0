@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 
 from app.utils.decorators import role_required
 from app.services import admin_service
@@ -10,6 +10,8 @@ admin_bp = Blueprint("admin", __name__, url_prefix="/api/admin")
 def _err(e, code=400):
     return jsonify({"success": False, "error": {"message": str(e)}}), code
 
+
+# ---------------- Drives ----------------
 
 @admin_bp.route("/drives/pending", methods=["GET"])
 @jwt_required()
@@ -32,9 +34,8 @@ def all_drives():
 @jwt_required()
 @role_required("admin")
 def approve_drive(drive_id):
-    admin_id = get_jwt_identity()
     try:
-        drive = admin_service.approve_drive(drive_id, admin_id)
+        drive = admin_service.approve_drive(drive_id)
         return jsonify({"success": True, "message": "Drive approved", "data": drive.to_dict()})
     except ValueError as e:
         return _err(e)
@@ -44,10 +45,8 @@ def approve_drive(drive_id):
 @jwt_required()
 @role_required("admin")
 def reject_drive(drive_id):
-    admin_id = get_jwt_identity()
-    reason = (request.get_json(silent=True) or {}).get("reason")
     try:
-        drive = admin_service.reject_drive(drive_id, admin_id, reason=reason)
+        drive = admin_service.reject_drive(drive_id)
         return jsonify({"success": True, "message": "Drive rejected", "data": drive.to_dict()})
     except ValueError as e:
         return _err(e)
