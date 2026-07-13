@@ -23,15 +23,8 @@
 
     <div v-else>
       <AdminDashboard v-if="user.role === 'admin'" />
-
-      <div v-else class="card">
-        <div class="card-body">
-          <h5 class="card-title text-capitalize">{{ user.role }} Dashboard</h5>
-          <p class="card-text text-muted mb-0">
-            This section is coming next — drives, applications, and profile management.
-          </p>
-        </div>
-      </div>
+      <StudentDashboard v-else-if="user.role === 'student'" />
+      <CompanyDashboard v-else-if="user.role === 'company'" />
     </div>
   </div>
 </template>
@@ -39,10 +32,12 @@
 <script>
 import userService from '@/services/userService'
 import AdminDashboard from '@/components/admin/AdminDashboard.vue'
+import StudentDashboard from '@/components/student/StudentDashboard.vue'
+import CompanyDashboard from '@/components/company/CompanyDashboard.vue'
 
 export default {
   name: 'DashboardView',
-  components: { AdminDashboard },
+  components: { AdminDashboard, StudentDashboard, CompanyDashboard },
   data() {
     return {
       user: null,
@@ -61,7 +56,15 @@ export default {
         const response = await userService.getCurrentUser()
         this.user = response.data
       } catch (err) {
-        this.error = "ACCOUNT BLOCKED"
+        const backendMessage = err.response?.data?.error?.message
+        if (err.response?.status === 401) {
+          // token missing/expired/invalid -> send them back to login rather than
+          // showing a dead-end error screen
+          localStorage.removeItem('token')
+          this.$router.push('/login')
+          return
+        }
+        this.error = backendMessage || 'Could not load your account details. Please try again.'
       } finally {
         this.loading = false
       }

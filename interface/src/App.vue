@@ -8,42 +8,11 @@
 
       <div class="container">
 
-        <router-link 
+        <div
           class="navbar-brand"
           to="/"
         >
           Niyukt-v2.0
-        </router-link>
-
-
-        <div>
-
-          <router-link
-            v-if="!isLoggedIn"
-            class="btn btn-outline-light mr-2"
-            to="/login"
-          >
-            Login
-          </router-link>
-
-
-          <router-link
-            v-if="!isLoggedIn"
-            class="btn btn-outline-light"
-            to="/register"
-          >
-            Register
-          </router-link>
-
-
-          <button
-            v-if="isLoggedIn"
-            class="btn btn-danger"
-            @click="logout"
-          >
-            Logout
-          </button>
-
 
         </div>
 
@@ -52,7 +21,6 @@
 
 
     </nav>
-
 
     <!-- All views render here -->
     <router-view />

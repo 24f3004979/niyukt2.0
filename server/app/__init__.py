@@ -42,6 +42,11 @@ def create_app():
     from app.routes.user_routes import user_bp
     from app.routes.auth_routes import auth_bp
     from app.routes.admin_routes import admin_bp
+    from app.routes.company_routes import company_bp
+    from app.routes.student_routes import student_bp
+
+    app.register_blueprint(company_bp)
+    app.register_blueprint(student_bp)
 
     app.register_blueprint(
         admin_bp,
