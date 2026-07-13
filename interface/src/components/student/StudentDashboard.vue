@@ -31,10 +31,22 @@
           My Profile
         </a>
       </li>
+
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          :class="{ active: activeTab === 'history' }"
+          href="#"
+          @click.prevent="activeTab = 'history'"
+        >
+          Placement history
+        </a>
+      </li>
     </ul>
 
     <AvailableDrives v-if="activeTab === 'drives'" @applied="activeTab = 'applications'" />
     <MyApplications v-else-if="activeTab === 'applications'" />
+    <PlacementHistory v-else-if="activeTab === 'history'"/>
     <ResumeUpload v-else />
   </div>
 </template>
@@ -44,9 +56,11 @@ import AvailableDrives from './AvailableDrives.vue'
 import MyApplications from './MyApplications.vue'
 import ResumeUpload from './ResumeUpload.vue'
 
+import PlacementHistory from './PlacementHistory.vue';
+
 export default {
   name: 'StudentDashboard',
-  components: { AvailableDrives, MyApplications, ResumeUpload },
+  components: { AvailableDrives, MyApplications, ResumeUpload, PlacementHistory },
   data() {
     return {
       activeTab: 'drives'

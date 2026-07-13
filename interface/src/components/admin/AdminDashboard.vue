@@ -37,6 +37,13 @@
       v-else-if="activeTab === 'company-users'"
       role="company"
     />
+    <AnalyticsPanel
+      v-else-if="activeTab === 'analytics-panel'"
+    />
+    <ReportsPanel
+      v-else-if="activeTab === 'report'"
+    />
+
   </div>
 </template>
 
@@ -46,9 +53,13 @@ import DriveApproval from './DriveApproval.vue'
 import UserTable from './UserTable.vue'
 import adminService from '@/services/adminService'
 
+import AnalyticsPanel from './AnalyticsPanel.vue';
+import ReportsPanel from './ReportsPanel.vue';
+
+
 export default {
   name: 'AdminDashboard',
-  components: { PendingCompanies, DriveApproval, UserTable },
+  components: { PendingCompanies, DriveApproval, UserTable , AnalyticsPanel, ReportsPanel},
   data() {
     return {
       activeTab: 'companies',
@@ -58,7 +69,9 @@ export default {
         { key: 'companies', label: 'Pending Companies' },
         { key: 'drives', label: 'Drives' },
         { key: 'students', label: 'Students' },
-        { key: 'company-users', label: 'Companies' }
+        { key: 'company-users', label: 'Companies' },
+        {key: 'analytics-panel', label: 'Analytics'},
+        {key:'report', label: 'Reports'}
       ]
     }
   },

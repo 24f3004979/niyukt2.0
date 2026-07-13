@@ -28,3 +28,7 @@ create_user "Admin" "admin@example.com" "admin"
 
 echo 'User smoke function being launched';
 user_smoke
+
+celery -A app.celery_app.celery worker --loglevel=info
+celery -A app.celery_app.celery beat   --loglevel=info
+

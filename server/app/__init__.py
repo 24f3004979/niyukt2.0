@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+import os
 
 from app.extensions import db, jwt
 
@@ -44,10 +45,29 @@ def create_app():
     from app.routes.admin_routes import admin_bp
     from app.routes.company_routes import company_bp
     from app.routes.student_routes import student_bp
+    app.config["CELERY_BROKER_URL"] = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+    app.config["CELERY_RESULT_BACKEND"] = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+
+    # existing Flask-Mail config, if not already present:
+    app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER")
+    app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", 587))
+    app.config["MAIL_USE_TLS"] = True
+    app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
+    app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+
+    from app.celery_app import  init_celery
+    init_celery(app)
+
+    # Register the two new blueprints alongside admin_bp
+    from app.routes.admin_report_routes import admin_report_bp
+    from app.routes.student_report_routes import student_report_bp
+
+    app.register_blueprint(admin_report_bp)
+    app.register_blueprint(student_report_bp)
 
     app.register_blueprint(company_bp)
     app.register_blueprint(student_bp)
-
+    
     app.register_blueprint(
         admin_bp,
         url_prefix="/api/admin"
