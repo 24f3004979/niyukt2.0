@@ -1,39 +1,37 @@
 # backend/app/celery_app.py
 #
-# IMPORTANT: `celery` is created at MODULE LEVEL (not inside a function).
-# This is what makes `from app.celery_app import celery` work everywhere
-# (report_tasks.py, admin_report_routes.py) regardless of import order.
-# The earlier factory-function version only ever built the Celery object
-# inside make_celery() and assigned it to a local variable in
-# app/__init__.py — the name "celery" never actually existed inside the
-# celery_app module itself, which is exactly what caused the ImportError.
+# Broker/backend URLs are read directly from the environment at MODULE
+# LEVEL, not from app.config. This is deliberate: the Celery worker process
+# imports this module standalone (`celery -A app.celery_app.celery worker`)
+# and needs a working broker connection the instant it's imported — it
+# should never depend on whether/when a Flask factory function gets called.
 #
-# Wire this up in app/__init__.py:
+# If you were seeing the worker try to connect to amqp://guest@127.0.0.1:5672
+# (RabbitMQ's default port) instead of Redis, that's Celery silently
+# falling back to its built-in default broker because it never received
+# CELERY_BROKER_URL — almost always because init_celery(app) never actually
+# ran before the worker read its config (common with create_app() factories,
+# where importing the package doesn't call the factory).
 #
-#   app.config["CELERY_BROKER_URL"] = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-#   app.config["CELERY_RESULT_BACKEND"] = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+# Set this in your .env / shell before starting anything:
+#   REDIS_URL=redis://localhost:6379/0
 #
-#   from app.celery_app import celery, init_celery
-#   init_celery(app)
-#
-# Run alongside Flask in dev:
+# Run:
 #   celery -A app.celery_app.celery worker --loglevel=info
 #   celery -A app.celery_app.celery beat   --loglevel=info
-#
-# Why the CLI command still works even though config is applied later:
-# `celery -A app.celery_app.celery` imports the `app.celery_app` submodule,
-# which forces Python to first import the `app` package — i.e. run
-# app/__init__.py top to bottom, including the init_celery(app) call.
-# By the time Celery's CLI actually gets the `celery` object, it's already
-# fully configured.
 
+import os
 from celery import Celery
 from celery.schedules import crontab
 
-# Created immediately at import time — no Flask app needed yet.
-# `include` tells Celery where to find tasks once it does need them
-# (lazy — doesn't force an import right now, so no circular-import risk).
-celery = Celery(__name__, include=["app.tasks.report_tasks"])
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+
+celery = Celery(
+    "app",
+    broker=REDIS_URL,
+    backend=REDIS_URL,
+    include=["app.tasks.report_tasks"],
+)
 
 celery.conf.update(
     task_serializer="json",
@@ -50,17 +48,25 @@ celery.conf.update(
     },
 )
 
+print(f"[celery_app] broker/backend configured at: {REDIS_URL}")
+
 
 def init_celery(app):
-    """Call this once from app/__init__.py after the Flask app + its
-    config are ready. Binds broker/backend URLs and makes every task run
-    inside a Flask app context (so db.session / current_app / mail work
-    exactly like they would inside a normal request)."""
+    """Call this once from app/__init__.py (or create_app()) after the
+    Flask app is ready. Only adds the app-context wrapper so tasks can use
+    db.session / current_app / mail — broker/backend are already set above
+    regardless of whether this ever gets called, so a misconfigured or
+    un-called factory can no longer silently break the broker connection."""
 
-    celery.conf.update(
-        broker_url=app.config["CELERY_BROKER_URL"],
-        result_backend=app.config["CELERY_RESULT_BACKEND"],
-    )
+    # Allow app.config to override the env-based URLs if explicitly set,
+    # but don't require it.
+    broker_override = app.config.get("CELERY_BROKER_URL")
+    backend_override = app.config.get("CELERY_RESULT_BACKEND")
+    if broker_override or backend_override:
+        celery.conf.update(
+            broker_url=broker_override or REDIS_URL,
+            result_backend=backend_override or REDIS_URL,
+        )
 
     class ContextTask(celery.Task):
         def __call__(self, *args, **kwargs):

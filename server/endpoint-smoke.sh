@@ -24,7 +24,7 @@ curl -X POST http://127.0.0.1:5000/api/auth/register \
     -d "{\"username\": \"${username}\", \"email\": \"${email}\", \"password\": \"lqppgc9qr\", \"role\": \"${role}\"}"
 }
 
-create_user "Admin" "admin@example.com" "admin"
+create_user "Admin" "24f3004979@ds.study.iitm.ac.in" "admin"
 
 echo 'User smoke function being launched';
 user_smoke

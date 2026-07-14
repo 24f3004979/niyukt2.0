@@ -6,3 +6,5 @@ celery
 redis
 flask-mail
 python-dateutil
+python-dotenv
+
